@@ -10,9 +10,10 @@
 
 界面：
 
-![]<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/1.png>
+![](<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/1.png>)
 
 GIF动画展示：
-![]<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/canvasgame.gif>
 
-![]<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/canvasgame_error.gif>
+![](<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/canvasgame.gif>)
+
+![](<https://github.com/Zhouqiaoqiao1026/CanvasGame/blob/master/screenshots/canvasgame_error.gif>)
