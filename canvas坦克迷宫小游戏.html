@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2017329621155-周俏俏-Canvas迷宫小游戏</title>
+<script src="modernizr.js"></script>
+<script type="text/javascript">
+window.addEventListener('load', eventWindowLoaded, false);	
+function eventWindowLoaded() {
+
+	canvasApp();
+	
+}
+
+function canvasSupport () {
+  	return Modernizr.canvas;
+}
+
+var flag=false; //判断游戏是否开始
+var score=0; //游戏得分
+var b1=false;
+var gameover=1;  //游戏是否结束，1为
+function canvasApp(){
+	
+
+	if (!canvasSupport()) {
+			 return;
+  	}else{
+	    var theCanvas = document.getElementById('canvas');
+	    var context = theCanvas.getContext('2d');
+
+        var theCanvas1 = document.getElementById('canvas2');
+	    var context2 = theCanvas1.getContext('2d');
+
+        var theCanvas2 = document.getElementById('startcanvas');
+	    var context3 = theCanvas2.getContext('2d');
+	    
+
+	}
+    var tileSheet = new Image();
+	tileSheet.addEventListener('load', eventSheetLoaded , false);
+	tileSheet.src = "tanks_sheet.png";
+
+	
+	var mapIndexOffset = -1;
+	var mapRows = 16;
+	var mapCols = 20;
+
+	var tileMap = [
+	 [28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,1,1,28 ,28]
+	,[26, 1, 1, 1, 1,1 ,31, 1, 1, 1, 1, 1, 1,31 , 1, 1, 1,1,  1,26]
+	,[26, 1, 32, 1, 1,1 , 1, 1, 1, 1, 1, 1, 1,31 , 1, 1, 1,1, 1,26]
+	,[26, 31,31, 1, 31,31 , 31, 31, 1, 1, 1, 31, 1,1 , 1, 31, 31,1,  1,26]
+	,[26, 1,  1, 1,  1, 1 , 1 , 32, 1, 1, 32, 32, 31,1 , 1, 31, 1,1,  1,26]
+	,[26, 1,  1, 1,  1, 1 , 31, 31, 1, 1, 1, 1, 31,1 , 1, 1, 31,1,  1,26]
+	,[26, 1, 1, 1, 1,1 , 31, 31, 1, 1, 1, 1, 1,1 , 1, 1, 1,1,  1,26]
+	,[1, 1, 32, 1, 1,1 , 1, 1, 1, 1, 1, 1, 1,1 , 1, 1, 1,1,  1,26]
+	,[1, 1, 32, 1, 1,1 , 1, 1, 31, 31, 31, 31, 31,31 , 1, 1, 31,31,  31,26]
+	,[26,31,31, 1, 1,31 , 31, 1, 1, 1, 1, 1, 1,31 , 31, 31, 1,1,  1,26]
+	,[26, 1, 1, 1, 1,31 , 1, 1, 1, 1, 31, 31, 31,1 , 1, 1, 1,1,  1,26]
+	,[26, 1, 1, 1, 1,1 , 1, 1, 1, 1, 1, 1, 1,1 , 1, 1, 1,1,  1,26]
+	,[26, 31,31, 31, 1,1 , 1, 1, 1, 1, 32, 1, 1,1 , 31, 31, 31,1,  1,26]
+	,[26, 1,  1, 32,1,1 , 1, 1, 1, 1, 32, 1, 1,1 , 1, 1, 31,1,  1,26]
+	,[26, 31, 1, 1,1,1 ,1, 1, 1, 1, 32, 1, 1,31 , 1, 1, 1,31,  31,26]
+	,[28, 28 ,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28]
+	];
+
+	var tank1={};
+	tank1.tileSheet=new Image();
+	tank1.tileSheet.addEventListener('load', eventSheetLoaded , false);
+	tank1.tileSheet.src="tanks_sheet.png";
+	
+	var animationFrames=[1,2,3,4,5,6,7,8];
+	var animationFramesBlue=[9,10,11,12,13,14,15,16];
+	var animationFramesFire=[21,17,18,19,21,17,18,19];
+	var frameIndex=0;
+	var frameIndex1=0;
+	var rotation=90;
+	tank1.x=0;
+	tank1.height=32;
+    tank1.width=32;
+	tank1.y=224;
+	var dx=32;
+	var dy=32;
+    //小鸟
+    var bird=new Array(5);
+    for(var i=0;i<5;i++){
+    	bird[i]={};
+    	bird[i].tileSheet=new Image();
+    	bird[i].tileSheet.addEventListener('load', eventSheetLoaded , false);
+    	bird[i].tileSheet.src="tanks_sheet.png";
+    }
+    bird[0].x=32;
+    bird[0].y=416;
+    bird[1].x=32;
+    bird[1].y=64;
+    bird[2].x=448;
+    bird[2].y=256;
+    bird[3].x=512;
+    bird[3].y=128;
+    bird[4].x=512;
+    bird[4].y=448;
+   //火焰
+   var fire=new Array(3);
+   for(var i=0;i<5;i++){
+    	fire[i]={};
+    	fire[i].tileSheet=new Image();
+    	fire[i].tileSheet.addEventListener('load', eventSheetLoaded , false);
+    	fire[i].tileSheet.src="tanks_sheet.png";
+    }
+    fire[0].x=192;
+    fire[0].y=384;
+    fire[1].x=192;
+    fire[1].y=64;
+    fire[2].x=352;
+    fire[2].y=224;
+
+    let x=0,y=224,key=getKey();
+	function eventSheetLoaded() {
+		
+		startUp();
+	}
+	
+
+	 window.addEventListener("keydown",function (e) {
+            //context.clearRect(0,0,canvas.width,canvas.height);
+ //drawMap();
+       var imageData;
+if(flag)
+            {//根据键盘的keyCode值，设定重新绘图的坐标并绘制新的图片
+            switch (key.direction){
+                case "up":
+                    rotation=0;
+                    imageData = context.getImageData(tank1.x,tank1.y-32,32, 32);
+                    if(!checkForCollision(imageData)){tank1.y=tank1.y-dy;}
+                     drawMap();
+                    break;
+                case "down":
+                    rotation=180;
+                    imageData = context.getImageData(tank1.x,tank1.y+32,32, 32);
+                    if(!checkForCollision(imageData)){tank1.y=tank1.y+dy;}
+                     drawMap();
+                    break;
+                case "left":
+                   rotation=-90;
+                    imageData = context.getImageData(tank1.x-32,tank1.y,32, 32);
+                   if(!checkForCollision(imageData)){tank1.x=tank1.x-dx;}
+                     drawMap();
+                    break;
+                case "right":
+                   rotation=90;
+                    imageData = context.getImageData(tank1.x+32,tank1.y,32, 32);
+                   if(!checkForCollision(imageData)){tank1.x=tank1.x+dx;}
+                    drawMap();
+                    break;
+                default:
+                    drawMap();
+            }}
+        },false);
+
+	function drawMap(){
+		for (var rowCtr=0;rowCtr<mapRows;rowCtr++) {
+			for (var colCtr=0;colCtr<mapCols;colCtr++){
+				var tileId = tileMap[rowCtr][colCtr]+mapIndexOffset;
+				var sourceX = Math.floor(tileId % 8) *32;
+				var sourceY = Math.floor(tileId / 8) *32;
+				//context.drawImage(tileSheet, sourceX,sourceY,32,32,colCtr*32,rowCtr*32,32,32);
+				if(tileId==0){
+					
+					//context.fillRect(colCtr*32,rowCtr*32,32,32);
+					context.drawImage(tileSheet, sourceX,sourceY,32,32,colCtr*32,rowCtr*32,32,32);
+				}
+				else{
+					context.fillStyle="#000000";
+					context.fillRect(colCtr*32,rowCtr*32,32,32);
+					context2.drawImage(tileSheet, sourceX,sourceY,32,32,colCtr*32,rowCtr*32,32,32);
+				}
+
+			}
+		}
+	}
+     var t=0;
+     var tt=0.5;
+     var txt="Loading.";
+     function drawProcessingbar(){
+        
+     	if(t>500){
+     		t=500; 
+     		theCanvas2.style.display="none"  //进度条到底自动隐藏
+     	};
+
+        context3.fillStyle="#ffffff";
+       
+     	context3.fillRect(50,90,600,200); 
+
+     	context3.fillStyle="#006400";
+     	context3.strokeRect(50,90,600,200)
+        context3.fillStyle="#006400";
+       
+        context3.fillRect(80,180,10+t,30);
+        t=t+tt; 
+        context3.font         = "30px Sans-Serif";
+        context3.fillText("Loading....",80,250);
+        var angleInRadians =rotation * Math.PI / 180;
+        //context3.rotate(angleInRadians);
+        context3.save();
+
+        context3.restore();
+     }
+
+     drawProcessingbar();
+  function drawScreen() {
+  	    context.fillStyle    = "#000000";
+		context.font         = "30px Sans-Serif";
+  	    context.fillText  (score.toString(), 950, 75,50);
+		context.save();
+		context.setTransform(1,0,0,1,0,0)
+		var angleInRadians =rotation * Math.PI / 180;
+		context.translate(tank1.x+16, tank1.y+15)
+		context.rotate(angleInRadians);
+		var sourceX=Math.floor(animationFrames[frameIndex] % 8) *32;
+		var sourceY=Math.floor(animationFrames[frameIndex] / 8) *32;
+		
+		context.drawImage(tank1.tileSheet, sourceX, sourceY,32,32,-16,-16,32,32);
+		context.restore();
+        //小鸟
+        context.save();
+		context.drawImage(bird[0].tileSheet, 224, 64,32,32,bird[0].x,bird[0].y,32,32);
+		context.drawImage(bird[1].tileSheet, 224, 64,32,32,bird[1].x,bird[1].y,32,32);
+		context.drawImage(bird[2].tileSheet, 224, 64,32,32,bird[2].x,bird[2].y,32,32);
+		context.drawImage(bird[3].tileSheet, 224, 64,32,32,bird[3].x,bird[3].y,32,32);
+		context.drawImage(bird[4].tileSheet, 224, 64,32,32,bird[4].x,bird[4].y,32,32);
+		context.restore();
+        //火焰
+        context.save();
+		context.drawImage(fire[0].tileSheet, 96, 64,32,32,fire[0].x,fire[0].y,32,32);
+		context.drawImage(fire[1].tileSheet, 96, 64,32,32,fire[1].x,fire[1].y,32,32);
+		context.drawImage(fire[2].tileSheet, 96, 64,32,32,fire[2].x,fire[2].y,32,32);
+		context.restore();
+		frameIndex++;
+		if (frameIndex ==animationFrames.length) {
+		   frameIndex=0;
+		}
+
+        //吃小鸟+5分
+		if (boundingBoxCollide(tank1, bird[0])){  
+			setScore();
+			context.drawImage(tank1.tileSheet, 0, 0,32,32,bird[0].x,bird[0].y,32,32);
+			bird[0].x=0; bird[0].y=0;
+		}	
+		if (boundingBoxCollide(tank1, bird[1])){  
+			setScore();
+			context.drawImage(tank1.tileSheet, 0, 0,32,32,bird[1].x,bird[1].y,32,32);
+			bird[1].x=0; bird[1].y=0;
+		}	
+		if (boundingBoxCollide(tank1, bird[2])){  
+			setScore();
+			context.drawImage(tank1.tileSheet, 0, 0,32,32,bird[2].x,bird[2].y,32,32);
+			bird[2].x=0; bird[2].y=0;
+		}	
+		if (boundingBoxCollide(tank1, bird[3])){  
+			setScore();
+			context.drawImage(tank1.tileSheet, 0, 0,32,32,bird[3].x,bird[3].y,32,32);
+			bird[3].x=0; bird[3].y=0;
+		}	
+		if (boundingBoxCollide(tank1, bird[4])){  
+			setScore();
+			context.drawImage(tank1.tileSheet, 0, 0,32,32,bird[4].x,bird[4].y,32,32);
+			bird[4].x=0; bird[4].y=0;
+		}	
+		//遇到火焰爆炸，游戏结束
+		
+		if (boundingBoxCollide(tank1, fire[0])){  
+			alert("Boom!!!你的坦克烧坏了,游戏结束！刷新页面再来一局!");
+			fire[0].x=0; fire[0].y=0;
+			num=0;
+			document.getElementById("time").innerHTML=num;
+		}	
+		if (boundingBoxCollide(tank1, fire[1])){  
+			alert("Boom!!!你的坦克烧坏了,游戏结束!刷新页面再来一局!");
+			fire[1].x=0; fire[1].y=0;
+			num=0;
+			document.getElementById("time").innerHTML=num;
+		}	
+		if (boundingBoxCollide(tank1, fire[2])){  
+			alert("Boom!!!你的坦克烧坏了,游戏结束!刷新页面再来一局!");
+			fire[2].x=0; fire[2].y=0;
+			num=0;
+			document.getElementById("time").innerHTML=num;
+		}	
+        //判断游戏是否结束
+		if (gameWin(tank1)&&score>=15){  
+			
+			alert("你赢了！本轮游戏得分"+score+"分！刷新页面再来一局!");
+			tank1.x=0;
+			tank1.y=0;
+			gameover=0;
+			num=0;
+			drawScore();
+		}	
+	}
+    
+    function setScore(){
+    	console.log("bounding box collide");
+			score+=5;
+			context.fillStyle    = "#ffffff";
+			context.fillRect  (950, 30,50,50);
+    }
+    function drawScore(){
+    	//context.fillText  ('', 950, 80);
+    	context2.fillStyle    = "#000000";
+		context2.font         = "30px Sans-Serif";
+		context2.fillText  ('' + score, 950, 80);
+    }
+	function boundingBoxCollide(object1, object2) {
+
+	    if(object1.x==object2.x && object1.y==object2.y)
+		return(true);
+	};
+
+	function gameWin(object1) {
+
+	    if((object1.x==512 ||object1.x==544)&& object1.y==0)
+		return(true);
+	};
+
+	function checkForCollision(imageData) {  //判断和墙体、障碍的
+      var pixels = imageData.data;
+      for (var i = 0, len = pixels.length; i < len; i++) {
+        var red = pixels[i],
+        green = pixels[i + 1]
+        blue = pixels[i + 2]
+        alpha = pixels[i + 3]
+          // 检测是否碰到黑色的墙
+          if (red === 0 && green === 0 && blue === 0) {
+          return true
+          }
+      }
+      return false
+}
+
+
+	function startUp(){
+		gameloopstart();
+		gameLoop();
+		drawMap();  //绘制背景棋盘格
+		drawScreen();
+
+	}
+	function gameLoop() {
+		window.setTimeout(gameLoop, 80);
+		drawScreen(); 
+		
+		//drawScore();   
+	}
+	function gameloopstart(){
+		window.setTimeout(gameloopstart, 40);
+		drawProcessingbar();
+	}
+
+	 function getKey(){
+            let key={};
+
+            window.addEventListener("keydown",function(e){
+                let keys=e.keyCode;
+                if(keys== 38 ||keys==87){
+                    key.direction="up";
+                }else if(keys==39 || keys==68){
+                    key.direction="right";
+                }else if(keys==40 || keys ==83){
+                    key.direction="down";
+                }else if(keys==37 || keys ==65){
+                    key.direction="left";
+                }else{
+                    key.direction="";
+                }
+            },false);
+
+            return key;
+
+        }
+
+  
+       
+}
+
+//点击按钮开始计时，游戏开始
+ 
+  var num=60;
+  
+  function clock(){
+     num>0 ? num-- : clearInterval(i);
+     document.getElementById("time").innerHTML=num;
+    if(num==0&&gameover==1){alert("游戏时间到！");}
+   }
+   function stop(){
+   	clearInterval(i);
+   }
+      window.onload=function(){
+      document.getElementById("startbtn").onclick = function(){
+       var i=setInterval("clock()", 1000);
+            flag=true;
+
+      }
+
+      
+   
+    };
+</script> 
+</head>
+<body>
+
+<div style="position: absolute; top: 50px; left: 80px;">
+
+<canvas id="canvas" width="1200" height="550">
+ Your browser does not support the HTML 5 Canvas. 
+</canvas>
+
+<div style="position: absolute; top: 0px; left: 800px; font-size: 22px;">游戏倒计时：<span id="time">60</span></div>
+<div style="position: absolute; top:50px; left: 800px; font-size: 22px;">当前游戏得分:<span id="score"></span></div>
+<div style="position: absolute; top: 200px; left: -25px; font-size: 20px;font-weight: bold; color: red;"><p>入</p><p>口</p></div>
+<div style="position: absolute; top: -55px; left: 513px; font-size: 22px;font-weight: bold;color: red;"><p>出 &nbsp;&nbsp;口</p></div>
+<div style="position: absolute; top: 160px; left: 800px; font-size: 16px;">
+	<p >游戏说明：</p>
+	<p>1.玩家可以使用 A/S/D/W 或者 上下左右按键操控坦克的运动</p>
+	<p>2.游戏时间为60秒，超过60秒塔克未到达迷宫出口/到达出口但是分数小于最低要求则为游戏失败</p>
+	<p>3.迷宫中遇到小鸟可以+5分；遇到火焰则坦克故障，游戏结束</p>
+	<p>4.游戏通关最低分数要求：15分</p>
+	<p style="color: red;font-size：20px;">由于调用了getImageData函数，但是图片存储在本地文件，默认为没有域名，chrome浏览器判定为跨域，如果发现在chrome、360等浏览器无法正常游戏，请在<strong>IE浏览器</strong>中打开！</p>
+</div>
+</div>
+
+<div style="position: absolute; top: 50px; left: 80px;">
+<canvas id="canvas2" width="1200" height="550">
+ Your browser does not support the HTML 5 Canvas. 
+</canvas>
+</div>
+<p style="color:#000000;font-size：40px;">Canvas迷宫小游戏</p>
+<button id="startbtn" style="position: absolute; top: 150px; left: 900px; font-size: 22px;">开始游戏</button>
+
+<div  style="position: absolute; top: 100px; left: 350px; display: inline;" > 
+	<canvas id="startcanvas" width="800" height="500" ></canvas>
+</div>
+
+
+</body>
+</html>
